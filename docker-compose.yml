@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: quant_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - quant_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quant_api
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ALPHA_VANTAGE_API_KEY: ${ALPHA_VANTAGE_API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - quant_network
+    volumes:
+      - ./api:/app/api
+      - ./calculation:/app/calculation
+
+volumes:
+  postgres_data:
+
+networks:
+  quant_network:
+    driver: bridge
