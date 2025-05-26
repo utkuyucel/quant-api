@@ -13,6 +13,115 @@ A comprehensive ORM-based API built with FastAPI, SQLAlchemy, and PostgreSQL tha
 
 ## Architecture
 
+```mermaid
+graph TB
+    %% External Services
+    AV[Alpha Vantage API<br/>Bitcoin Data Provider]
+    CLIENT[Client Applications<br/>Web/Mobile/API Consumers]
+    
+    %% Main Application Layer
+    subgraph "FastAPI Application"
+        API[FastAPI Router Layer]
+        MIDDLEWARE[Middleware & Security]
+        
+        subgraph "API Endpoints"
+            BTC_EP[/btc/* endpoints]
+            ANALYSIS_EP[/analysis/* endpoints]
+            HEALTH_EP[/health endpoint]
+        end
+        
+        subgraph "Services Layer"
+            AV_SERVICE[Alpha Vantage Service<br/>External API Integration]
+            BTC_SERVICE[Bitcoin Data Service<br/>Business Logic]
+        end
+        
+        subgraph "Models & Schemas"
+            PYDANTIC[Pydantic Schemas<br/>Request/Response Models]
+            SQLALCHEMY[SQLAlchemy Models<br/>Database Entities]
+        end
+        
+        subgraph "Core Infrastructure"
+            CONFIG[Configuration<br/>Environment Settings]
+            DATABASE[Database Connection<br/>SQLAlchemy ORM]
+        end
+    end
+    
+    %% Calculation Engine
+    subgraph "Quantitative Analysis Engine"
+        VOL_ANALYZER[Volume Analyzer<br/>Volume-Price Correlation]
+        TREND_ANALYZER[Trend Analyzer<br/>Pattern Detection]
+        STAT_ENGINE[Statistical Engine<br/>Correlation & Significance Tests]
+    end
+    
+    %% Data Persistence
+    subgraph "PostgreSQL Database"
+        BTC_TABLE[Bitcoin Data Table<br/>Daily OHLCV Data]
+        ANALYSIS_TABLE[Analysis Results Table<br/>Computed Metrics]
+        METADATA_TABLE[Metadata Tables<br/>System State]
+    end
+    
+    %% Data Flow
+    CLIENT --> API
+    API --> MIDDLEWARE
+    MIDDLEWARE --> BTC_EP
+    MIDDLEWARE --> ANALYSIS_EP
+    MIDDLEWARE --> HEALTH_EP
+    
+    BTC_EP --> BTC_SERVICE
+    ANALYSIS_EP --> BTC_SERVICE
+    
+    BTC_SERVICE --> AV_SERVICE
+    BTC_SERVICE --> VOL_ANALYZER
+    BTC_SERVICE --> TREND_ANALYZER
+    
+    AV_SERVICE --> AV
+    
+    VOL_ANALYZER --> STAT_ENGINE
+    TREND_ANALYZER --> STAT_ENGINE
+    
+    BTC_SERVICE --> DATABASE
+    DATABASE --> BTC_TABLE
+    DATABASE --> ANALYSIS_TABLE
+    DATABASE --> METADATA_TABLE
+    
+    %% Configuration Flow
+    CONFIG -.-> DATABASE
+    CONFIG -.-> AV_SERVICE
+    
+    %% Schema Validation
+    PYDANTIC -.-> API
+    SQLALCHEMY -.-> DATABASE
+    
+    %% External Dependencies
+    AV -.->|Bitcoin OHLCV Data| AV_SERVICE
+    
+    %% Docker Infrastructure
+    subgraph "Docker Environment"
+        DOCKER_API[quant-api Container<br/>FastAPI + Python]
+        DOCKER_DB[postgres Container<br/>PostgreSQL Database]
+        DOCKER_NET[Docker Network<br/>Internal Communication]
+    end
+    
+    DATABASE -.-> DOCKER_DB
+    API -.-> DOCKER_API
+    DOCKER_API -.-> DOCKER_NET
+    DOCKER_DB -.-> DOCKER_NET
+    
+    %% Styling
+    classDef external fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef api fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef analysis fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef database fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef docker fill:#f1f8e9,stroke:#558b2f,stroke-width:2px
+    
+    class AV,CLIENT external
+    class API,MIDDLEWARE,BTC_EP,ANALYSIS_EP,HEALTH_EP,AV_SERVICE,BTC_SERVICE,PYDANTIC,SQLALCHEMY,CONFIG,DATABASE api
+    class VOL_ANALYZER,TREND_ANALYZER,STAT_ENGINE analysis
+    class BTC_TABLE,ANALYSIS_TABLE,METADATA_TABLE database
+    class DOCKER_API,DOCKER_DB,DOCKER_NET docker
+```
+
+### Directory Structure
 ```
 ├── api/                 # FastAPI application
 │   ├── core/           # Configuration and database setup
