@@ -1,0 +1,19 @@
+.env
+*.pyc
+
+# venv
+venv/
+
+# data
+.csv
+.json
+.parquet
+
+# logs
+*.log
+# cache
+__pycache__/
+
+# coverage
+.coverage
+.coverage.*   
