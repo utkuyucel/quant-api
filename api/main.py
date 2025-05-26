@@ -1,11 +1,14 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.database import Base, engine
 from api.routers import analysis, btc
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Only create database tables if not in testing mode
+if not os.getenv("TESTING", False):
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Quant API - Bitcoin Analysis Platform",

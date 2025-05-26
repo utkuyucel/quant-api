@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BTCDataBase(BaseModel):
@@ -14,12 +15,11 @@ class BTCDataCreate(BTCDataBase):
 
 
 class BTCDataResponse(BTCDataBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class VolumeAnalysisBase(BaseModel):
@@ -36,16 +36,15 @@ class VolumeAnalysisCreate(VolumeAnalysisBase):
 
 
 class VolumeAnalysisResponse(VolumeAnalysisBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class AnalysisResult(BaseModel):
     """Comprehensive analysis result"""
     total_records: int
     latest_analysis: VolumeAnalysisResponse | None
-    summary: dict
+    summary: dict[str, Any]
     recommendations: list[str]

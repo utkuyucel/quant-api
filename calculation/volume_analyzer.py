@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 
 @dataclass(frozen=True)
@@ -121,7 +122,7 @@ class VolumeAnalyzer:
             return "divergent"
 
     def _calculate_strength_score(
-        self, correlation: float, price_changes: np.ndarray, volume_changes: np.ndarray
+        self, correlation: float, price_changes: NDArray[np.floating[Any]], volume_changes: NDArray[np.floating[Any]]
     ) -> float:
         """Calculate strength score based on correlation and volatility"""
         # Base score from correlation strength

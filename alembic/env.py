@@ -1,31 +1,36 @@
+import logging
+import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-# Import our models
+# Import our models and settings
+from api.core.config import get_settings
 from api.core.database import Base
 from api.models.btc_models import BTCData, VolumeAnalysis  # noqa: F401
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Alembic Config object
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Get database URL from our settings (loads from .env)
+settings = get_settings()
+config.set_main_option("sqlalchemy.url", settings.database_url)
+
+# Configure logging programmatically instead of using .ini file
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+else:
+    # Fallback logging configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)-5.5s [%(name)s] %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)]
+    )
 
-# add your model's MetaData object here
-# for 'autogenerate' support
+# Set up target metadata for autogenerate
 target_metadata = Base.metadata
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def run_migrations_offline() -> None:

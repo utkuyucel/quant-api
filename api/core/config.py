@@ -1,18 +1,32 @@
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql://quant_user:quant_password@postgres:5432/quant_db"
-    alpha_vantage_api_key: str = "demo"
-    postgres_db: str = "quant_db"
-    postgres_user: str = "quant_user"
-    postgres_password: str = "quant_password"
+    """
+    Application settings loaded from environment variables or .env file.
+    All sensitive values must be provided via environment configuration.
+    """
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="allow",
+        case_sensitive=False
+    )
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
+    # Database configuration - NO DEFAULTS for security
+    database_url: str
+    postgres_db: str
+    postgres_user: str
+    postgres_password: str
+
+    # API keys - NO DEFAULTS for security
+    alpha_vantage_api_key: str
+
+    # Optional application settings with safe defaults
+    app_name: str = "Quant API - Bitcoin Analysis Platform"
+    app_version: str = "1.0.0"
+    debug: bool = False
 
 
 @lru_cache
