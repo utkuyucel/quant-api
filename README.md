@@ -12,43 +12,39 @@ FastAPI-based Bitcoin quantitative analysis platform that fetches real-time data
 ## Architecture & Workflow
 
 ```mermaid
-flowchart TD
-    Client[Client Apps] 
-    API[FastAPI Router]
-    BTC[Bitcoin Service]
-    Analysis[Analysis Service]
-    AlphaV[Alpha Vantage API]
-    VolumeAnalyzer[Volume Analyzer]
-    Stats[Statistical Engine]
-    DB[(PostgreSQL Database)]
+graph TD
+    A[Client Apps] --> B[FastAPI Router]
+    B --> C[Bitcoin Service]
+    B --> D[Analysis Service]
+    C --> E[Alpha Vantage API]
+    C --> F[PostgreSQL Database]
+    D --> F
+    D --> G[Volume Analyzer]
+    G --> H[Statistical Engine]
+    H --> D
+    D --> B
+    B --> A
     
-    %% Workflow Steps
-    Client -->|1. API Request| API
-    API -->|2. Route to Service| BTC
-    API -->|2. Route to Service| Analysis
-    BTC -->|3. Fetch External Data| AlphaV
-    BTC -->|4. Store Data| DB
-    Analysis -->|5. Read Data| DB
-    Analysis -->|6. Process Analysis| VolumeAnalyzer
-    VolumeAnalyzer -->|7. Calculate Stats| Stats
-    Stats -->|8. Return Results| Analysis
-    Analysis -->|9. Save Results| DB
-    Analysis -->|10. Return to API| API
-    API -->|11. JSON Response| Client
-    
-    %% Docker Container
-    subgraph Docker["🐳 Docker Container"]
-        API
-        BTC
-        Analysis
-        VolumeAnalyzer
-        Stats
-        DB
+    subgraph Docker [Docker Container]
+        B
+        C
+        D
+        G
+        H
+        F
     end
-    
-    %% External Services
-    AlphaV
 ```
+
+### Workflow Steps
+1. **Client Request** → FastAPI receives API call
+2. **Route to Service** → Request routed to Bitcoin or Analysis service
+3. **Fetch Data** → Bitcoin service gets data from Alpha Vantage API
+4. **Store Data** → Raw Bitcoin data saved to PostgreSQL
+5. **Read Data** → Analysis service reads stored data
+6. **Process Analysis** → Volume analyzer processes the data
+7. **Calculate Stats** → Statistical engine computes correlations
+8. **Save Results** → Analysis results stored in database
+9. **Return Response** → JSON data sent back to client
 
 ## Quick Start
 
